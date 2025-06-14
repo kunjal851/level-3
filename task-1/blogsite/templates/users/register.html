@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign Up - ModernBlog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="auth-form-container fade-in-up">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Join ModernBlog</h2>
+                    <p class="text-muted">Create your account and start writing</p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p class="text-muted">Already have an account? <a href="/users/login/">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-form-container {
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        margin: 3rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .auth-form-container {
+            padding: 2rem 1.5rem;
+            margin: 2rem 0;
+        }
+    }
+</style>
+{% endblock %}

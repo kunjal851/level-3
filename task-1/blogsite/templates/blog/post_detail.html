@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - ModernBlog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article class="post-detail fade-in-up">
+                <!-- Post Header -->
+                <header class="post-header mb-4">
+                    <h1 class="display-4 fw-bold mb-3">{{ post.title }}</h1>
+                    
+                    <div class="post-meta d-flex align-items-center mb-4">
+                        <img src="{{ post.author.profile.image.url }}" alt="{{ post.author.username }}" class="author-avatar me-3" style="width: 50px; height: 50px;">
+                        <div>
+                            <h6 class="mb-1">{{ post.author.username }}</h6>
+                            <small class="text-muted">{{ post.date_posted|date:"F d, Y" }} • {{ post.content|wordcount }} words</small>
+                        </div>
+                        
+                        {% if post.author == user %}
+                            <div class="ms-auto">
+                                <a href="/post/{{ post.id }}/update/" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="/post/{{ post.id }}/delete/" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </header>
+
+                <!-- Post Image -->
+                {% if post.image %}
+                    <div class="post-image-container mb-4">
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid rounded-3 shadow-lg">
+                    </div>
+                {% endif %}
+
+                <!-- Post Content -->
+                <div class="post-content">
+                    <div class="content-text">{{ post.content|linebreaks }}</div>
+                </div>
+
+                <!-- Share Buttons -->
+                <div class="share-section mt-5 pt-4 border-top">
+                    <h6 class="mb-3">Share this post</h6>
+                    <div class="share-buttons">
+                        <a href="#" class="btn btn-outline-primary btn-sm me-2" onclick="sharePost('twitter')">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm me-2" onclick="sharePost('facebook')">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm me-2" onclick="sharePost('linkedin')">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" onclick="copyLink()">
+                            <i class="fas fa-link"></i> Copy Link
+                        </a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Comments Section -->
+            <section class="comments-section mt-5">
+                <h4 class="mb-4">
+                    <i class="fas fa-comments me-2"></i>
+                    Comments ({{ comments|length }})
+                </h4>
+
+                <!-- Add Comment Form -->
+                {% if user.is_authenticated %}
+                    <div class="comment-form mb-4">
+                        <form method="post" action="/post/{{ post.id }}/comment/">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ comment_form.content }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Post Comment
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a href="/users/login/">Login</a> to leave a comment.
+                    </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                <div class="comments-list">
+                    {% for comment in comments %}
+                        <div class="comment-card">
+                            <div class="comment-header d-flex align-items-center mb-2">
+                                <img src="{{ comment.author.profile.image.url }}" alt="{{ comment.author.username }}" class="author-avatar me-2">
+                                <div>
+                                    <div class="comment-author">{{ comment.author.username }}</div>
+                                    <div class="comment-date">{{ comment.date_posted|timesince }} ago</div>
+                                </div>
+                            </div>
+                            <div class="comment-content">{{ comment.content|linebreaks }}</div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
+                            <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    .post-detail {
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+    }
+
+    .post-image-container img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+
+    .content-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: var(--text-primary);
+    }
+
+    .share-buttons a {
+        transition: all 0.3s ease;
+    }
+
+    .share-buttons a:hover {
+        transform: translateY(-2px);
+    }
+
+    .comment-form textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    @media (max-width: 768px) {
+        .post-detail {
+            padding: 2rem 1.5rem;
+        }
+        
+        .post-image-container img {
+            height: 250px;
+        }
+    }
+</style>
+
+<script>
+    function sharePost(platform) {
+        const url = window.location.href;
+        const title = "{{ post.title }}";
+        let shareUrl = '';
+
+        switch(platform) {
+            case 'twitter':
+                shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                break;
+            case 'facebook':
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                break;
+            case 'linkedin':
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                break;
+        }
+
+        if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const btn = event.target.closest('a');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-outline-secondary');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}

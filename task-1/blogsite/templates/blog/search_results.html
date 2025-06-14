@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - ModernBlog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-results-header mb-5">
+        <h2 class="display-6 fw-bold mb-3">
+            {% if query %}
+                Search Results for "{{ query }}"
+            {% else %}
+                All Posts
+            {% endif %}
+        </h2>
+        <p class="text-muted">Found {{ posts|length }} post{{ posts|length|pluralize }}</p>
+    </div>
+
+    {% if posts %}
+        <div class="row">
+            {% for post in posts %}
+                <div class="col-lg-6 mb-4">
+                    <article class="search-result-card">
+                        <div class="row g-3">
+                            {% if post.image %}
+                                <div class="col-4">
+                                    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="search-result-image">
+                                </div>
+                                <div class="col-8">
+                            {% else %}
+                                <div class="col-12">
+                            {% endif %}
+                                <div class="search-result-content">
+                                    <h5 class="search-result-title">
+                                        <a href="/post/{{ post.id }}/">{{ post.title }}</a>
+                                    </h5>
+                                    <p class="search-result-excerpt">{{ post.content|truncatewords:20 }}</p>
+                                    <div class="search-result-meta">
+                                        <small class="text-muted">
+                                            By {{ post.author.username }} • {{ post.date_posted|date:"M d, Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-results text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No posts found</h4>
+            <p class="text-muted">Try searching with different keywords or browse all posts.</p>
+            <a href="/" class="btn btn-primary">Browse All Posts</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .search-result-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .search-result-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .search-result-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+
+    .search-result-title a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .search-result-title a:hover {
+        color: var(--primary-color);
+    }
+
+    .search-result-excerpt {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin: 0.75rem 0;
+    }
+</style>
+{% endblock %}

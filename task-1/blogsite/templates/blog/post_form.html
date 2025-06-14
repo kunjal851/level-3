@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Post{% else %}Create Post{% endif %} - ModernBlog
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="post-form-container fade-in-up">
+                <h2 class="mb-4">
+                    {% if form.instance.pk %}
+                        <i class="fas fa-edit me-2"></i>Edit Post
+                    {% else %}
+                        <i class="fas fa-pen me-2"></i>Create New Post
+                    {% endif %}
+                </h2>
+
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="id_title" class="form-label fw-semibold">Title</label>
+                        {{ form.title }}
+                        <div class="form-text">Choose a compelling title for your post</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_image" class="form-label fw-semibold">Featured Image</label>
+                        {{ form.image }}
+                        <div class="form-text">Upload an image to make your post stand out (optional)</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_content" class="form-label fw-semibold">Content</label>
+                        {{ form.content }}
+                        <div class="form-text">Share your thoughts, stories, and ideas</div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if form.instance.pk %}Update Post{% else %}Publish Post{% endif %}
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .post-form-container {
+        background: white;
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: var(--shadow-lg);
+        margin: 2rem 0;
+    }
+
+    #id_title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        padding: 1rem;
+    }
+
+    #id_content {
+        min-height: 300px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .form-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .post-form-container {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
